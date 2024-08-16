@@ -1,0 +1,2 @@
+obj-$(CONFIG_CUSTOM_HELLOWORLD) += main.o
+
