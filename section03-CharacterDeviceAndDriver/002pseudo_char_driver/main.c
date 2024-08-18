@@ -11,8 +11,28 @@ char device_buffer[DEV_MEM_SIZE];
 //this holds the device number
 dev_t device_number;
 
-//cdev variable
+//cdev variable: which represents char device
 struct cdev pcd_cdev;
+
+loff_t pcd_lseek(struct file *filp, loff_t off, int whence){
+	return 0;
+}
+
+ssize_t pcd_read(struct file *filp, char __user *buff, size_t count, loff_t *f_pos){
+	return 0;
+}
+
+ssize_t pcd_write(struct file *filp, const char __user *buff, size_t count, loff_t *f_pos){
+	return 0;
+}
+
+int pcd_open(struct inode *inode, struct file *filp){
+	return 0;
+}
+
+int pcd_release(struct inode *inode, struct file *filp){
+	return 0;
+}
 
 //file operations of the driver
 struct file_operations pcd_fops;
@@ -24,7 +44,7 @@ static int __init pcd_driver_init(void){
 	//2. Initialize the cdev structure with fops
 	//pcd_cdev.owner = THIS_MODULE;
 	cdev_init(&pcd_cdev, &pcd_fops);
-	
+
 	//3. Register a device (cdev structure) with VFS 
 	cdev_add(&pcd_cdev, device_number, 1);
 
