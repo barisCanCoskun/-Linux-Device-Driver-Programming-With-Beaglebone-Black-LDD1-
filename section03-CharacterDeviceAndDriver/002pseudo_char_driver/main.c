@@ -14,6 +14,7 @@ dev_t device_number;
 //cdev variable: which represents char device
 struct cdev pcd_cdev;
 
+//defining file operation methods
 loff_t pcd_lseek(struct file *filp, loff_t off, int whence){
 	return 0;
 }
@@ -35,7 +36,14 @@ int pcd_release(struct inode *inode, struct file *filp){
 }
 
 //file operations of the driver
-struct file_operations pcd_fops;
+struct file_operations pcd_fops ={
+	.open = pcd_open,
+	.release = pcd_release,
+	.write = pcd_write,
+	.read = pcd_read,
+	.llseek = pcd_lseek,
+	.owner = THIS_MODULE
+};
 
 static int __init pcd_driver_init(void){
 	//1. dynamically allocate a device number
