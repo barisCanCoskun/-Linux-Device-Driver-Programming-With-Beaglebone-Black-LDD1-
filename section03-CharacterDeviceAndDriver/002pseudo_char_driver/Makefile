@@ -1,4 +1,4 @@
-obj-m := main.o
+obj-m := pcd.o
 ARCH=arm
 CROSS_COMPILE=arm-linux-gnueabihf-
 KERN_DIR=/home/baris/barisCan/Udemy/FastBit-Embedded/Linux-Device-Driver-Programming-LDD1/section01-HostAndTargetSetup/source/linux-5.10.168-ti-rt-r76/
