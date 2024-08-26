@@ -1,0 +1,15 @@
+The file Structure
+struct file, defined in <linux/fs.h>, is the second most important data structure used in device drivers. Note that a file has nothing to do with 
+the FILEs of user-space programs. A FILE is defined in the C library and never appears in kernel code. A struct file, on the other hand, is a 
+kernel structure that never appears in user programs.
+
+The file structure represents an open file. (It is not specific to device drivers; every open file in the system has an associated struct file 
+in kernel space.) It is created by the kernel on open and is passed to any function that operates on the file, until the last close. 
+After all instances of the file are closed, the kernel releases the data structure. An open file is different from a disk file, 
+represented by struct inode.
+
+In the kernel sources, a pointer to struct file is usually called either file or filp (“file pointer”). We’ll consistently call the pointer filp 
+to prevent ambiguities with the structure itself. Thus, file refers to the structure and filp to a pointer to the structure.
+
+The most important fields of struct file are shown here. As in the previous section, the list can be skipped on a first reading. 
+In the next section though, when we face some real C code, we’ll discuss some of the fields, so they are here for you to refer to.
