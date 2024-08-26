@@ -3,6 +3,8 @@
 #include<linux/cdev.h>
 #include<linux/device.h>
 #include<linux/kdev_t.h>
+#include<linux/uaccess.h>
+
 //pcd : pseudo char driver
 
 #undef pr_fmt
@@ -28,8 +30,12 @@ loff_t pcd_lseek(struct file *filp, loff_t off, int whence){
 }
 
 ssize_t pcd_read(struct file *filp, char __user *buff, size_t count, loff_t *f_pos){
+	//5. if f_pos at EOF, then return 0;
+	if(*f_pos == DEV_MEM_SIZE)
+		return 0;
+
         pr_info("read requested for %zu bytes \n", count);
-	pr_info("current file position = %lld \n", f_pos);
+	pr_info("current file position = %lld \n", *f_pos);
 
 	//1. check the user requested 'count' value against DEV_MEM_SIZE of the device
 	// Adjust the count
@@ -45,22 +51,37 @@ ssize_t pcd_read(struct file *filp, char __user *buff, size_t count, loff_t *f_p
 	*f_pos += count;
 
 	pr_info("number of bytes successfully read = %zu \n", count);
-	pr_info("updated file position = %lld \n", f_pos);
+	pr_info("updated file position = %lld \n", *f_pos);
 
 	//4. Return number of bytes successfully read
-		return count;
-
-	//5. if f_pos at EOF, then return 0;
-	if(*f_pos == DEV_MEM_SIZE)
-		return 0;
+	return count;
 }
 
 ssize_t pcd_write(struct file *filp, const char __user *buff, size_t count, loff_t *f_pos){
-
-	//unsigned_long  copy_from_user(void *to, const void __user *from, unsigned long n);
-
+	//5. if f_pos at EOF, then return 0;
+        if(*f_pos == DEV_MEM_SIZE)
+                return -ENOMEM;
         pr_info("write requested for %zu bytes \n", count);
-	return 0;
+        pr_info("current file position = %lld \n", *f_pos);
+
+	//1. check the user requested 'count' value against DEV_MEM_SIZE of the device
+        // Adjust the count
+        if((*f_pos + count) > DEV_MEM_SIZE)
+                count = DEV_MEM_SIZE - *f_pos;
+
+        //2. copy 'count' number of bytes from user buffer to device memory
+	//unsigned_long copy_from_user(void *to, const void __user *from, unsigned long n);
+	if(copy_from_user(&device_buffer[*f_pos], buff, count))
+		return -EFAULT;
+
+	//3. update the current file position(f_pos)
+        *f_pos += count;
+
+	pr_info("number of bytes successfully written = %zu \n", count);
+        pr_info("updated file position = %lld \n", *f_pos);
+
+        //4. Return number of bytes successfully written
+        return count;
 }
 
 int pcd_open(struct inode *inode, struct file *filp){
