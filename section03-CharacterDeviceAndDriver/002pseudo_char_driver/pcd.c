@@ -28,18 +28,27 @@ loff_t pcd_lseek(struct file *filp, loff_t off, int whence){
 }
 
 ssize_t pcd_read(struct file *filp, char __user *buff, size_t count, loff_t *f_pos){
-	//1. chech the user requested 'count' value against DEV_MEM_SIZE of the device
-	if(*f_pos + count > DEV_MEM_SIZE)
+        pr_info("read requested for %zu bytes \n", count);
+	pr_info("current file position = %lld \n", f_pos);
+
+	//1. check the user requested 'count' value against DEV_MEM_SIZE of the device
+	// Adjust the count
+	if((*f_pos + count) > DEV_MEM_SIZE)
 		count = DEV_MEM_SIZE - *f_pos;
 
 	//2. copy 'count' number of bytes from device memory to user buffer
 	//unsigned_long  copy_to_user(void __user *to, const void *from, unsigned long n);
+	if(copy_to_user(buff, &device_buffer[*f_pos], count))
+		return -EFAULT;
 
-	//3. update the f_pos
+	//3. update the current file position(f_pos)
 	*f_pos += count;
 
-	//4. Return number of bytes successfully read or error code
-        pr_info("read requested for %zu bytes \n", count);
+	pr_info("number of bytes successfully read = %zu \n", count);
+	pr_info("updated file position = %lld \n", f_pos);
+
+	//4. Return number of bytes successfully read
+		return count;
 
 	//5. if f_pos at EOF, then return 0;
 	if(*f_pos == DEV_MEM_SIZE)
