@@ -20,17 +20,36 @@ dev_t device_number;
 struct cdev pcd_cdev;
 
 //defining file operation methods
+
+//lseek changes the position of the f_pos variable
 loff_t pcd_lseek(struct file *filp, loff_t off, int whence){
 	pr_info("lseek requested\n");
 	return 0;
 }
 
 ssize_t pcd_read(struct file *filp, char __user *buff, size_t count, loff_t *f_pos){
+	//1. chech the user requested 'count' value against DEV_MEM_SIZE of the device
+	if(*f_pos + count > DEV_MEM_SIZE)
+		count = DEV_MEM_SIZE - *f_pos;
+
+	//2. copy 'count' number of bytes from device memory to user buffer
+	//unsigned_long  copy_to_user(void __user *to, const void *from, unsigned long n);
+
+	//3. update the f_pos
+	*f_pos += count;
+
+	//4. Return number of bytes successfully read or error code
         pr_info("read requested for %zu bytes \n", count);
-	return 0;
+
+	//5. if f_pos at EOF, then return 0;
+	if(*f_pos == DEV_MEM_SIZE)
+		return 0;
 }
 
 ssize_t pcd_write(struct file *filp, const char __user *buff, size_t count, loff_t *f_pos){
+
+	//unsigned_long  copy_from_user(void *to, const void __user *from, unsigned long n);
+
         pr_info("write requested for %zu bytes \n", count);
 	return 0;
 }
