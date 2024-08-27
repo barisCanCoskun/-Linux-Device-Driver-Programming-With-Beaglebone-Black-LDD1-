@@ -29,25 +29,58 @@ struct pcdev_private_data{
 	unsigned size;
 	const char *serial_number;
 	int perm;
+	//cdev variable: which represents char device
 	struct cdev cdev;
 };
 
 /* driver private data stucture */
 struct pcdrv_private_data{
 	int total_devices;
+	//this holds the device number
+	dev_t device_number;
+        struct class *class_pcd;
+        struct device *device_pcd;
 	struct pcdev_private_data pcdev_data[NO_OF_DEVICES];
 };
 
-//this holds the device number
-dev_t device_number;
+struct pcdrv_private_data pcdrv_data = {
+	.total_devices = NO_OF_DEVICES,
+	.pcdev_data = {
+		[0] = {
+			.buffer = device_buffer_pcdev1,
+			.size = MEM_SIZE_MAX_PCDEV1,
+			.serial_number = "PCDEV1XYZ123",
+			.perm = 0x1 /* RDONLY */
+		},
+                [1] = {
+                        .buffer = device_buffer_pcdev2,
+                        .size = MEM_SIZE_MAX_PCDEV2,
+                        .serial_number = "PCDEV2XYZ123",
+                        .perm = 0x10 /* WRONLY */
+                },
 
-//cdev variable: which represents char device
-struct cdev pcd_cdev;
+                [2] = {
+                        .buffer = device_buffer_pcdev3,
+                        .size = MEM_SIZE_MAX_PCDEV3,
+                        .serial_number = "PCDEV3XYZ123",
+                        .perm = 0x11 /* RDWR */
+                },
+
+                [3] = {
+                        .buffer = device_buffer_pcdev4,
+                        .size = MEM_SIZE_MAX_PCDEV4,
+                        .serial_number = "PCDEV4XYZ123",
+                        .perm = 0x11 /* RDWR */
+                }
+	}
+};
+
 
 //defining file operation methods
 
 //lseek changes the position of the f_pos variable
 loff_t pcd_lseek(struct file *filp, loff_t offset, int whence){
+#if 0
 	pr_info("lseek requested\n");
         pr_info("current file position = %lld\n", filp->f_pos);
 
@@ -75,9 +108,12 @@ loff_t pcd_lseek(struct file *filp, loff_t offset, int whence){
 
         pr_info("new file position = %lld\n", filp->f_pos);
 	return filp->f_pos;
+#endif
+	return 0;
 }
 
 ssize_t pcd_read(struct file *filp, char __user *buff, size_t count, loff_t *f_pos){
+#if 0
 	//5. if f_pos at EOF, then return 0;
 	if(*f_pos == DEV_MEM_SIZE)
 		return 0;
@@ -103,9 +139,12 @@ ssize_t pcd_read(struct file *filp, char __user *buff, size_t count, loff_t *f_p
 
 	//4. Return number of bytes successfully read
 	return count;
+#endif
+        return 0;
 }
 
 ssize_t pcd_write(struct file *filp, const char __user *buff, size_t count, loff_t *f_pos){
+#if 0
 	//5. if f_pos at EOF, then return 0;
         if(*f_pos == DEV_MEM_SIZE){
 		pr_err("No space left on the device\n");
@@ -132,6 +171,8 @@ ssize_t pcd_write(struct file *filp, const char __user *buff, size_t count, loff
 
         //4. Return number of bytes successfully written
         return count;
+#endif
+        return -ENOMEM;
 }
 
 int pcd_open(struct inode *inode, struct file *filp){
@@ -154,11 +195,8 @@ struct file_operations pcd_fops ={
 	.owner = THIS_MODULE
 };
 
-struct class *class_pcd;
-
-struct device *device_pcd;
-
 static int __init pcd_driver_init(void){
+#if 0
 	int ret; /* return value*/
 
 	//1. dynamically allocate a device number
@@ -212,9 +250,12 @@ unreg_chrdev:
 out:
 	pr_err("Module insertion failed\n");
 	return ret;
+#endif
+        return 0;
 }
 
 static void __exit pcd_driver_cleanup(void){
+#if 0
 	//chronologically reverse order
 	device_destroy(class_pcd, device_number);
 
@@ -225,6 +266,7 @@ static void __exit pcd_driver_cleanup(void){
 	unregister_chrdev_region(device_number, 1);
 
 	pr_info("module unloaded\n");
+#endif
 }
 
 module_init(pcd_driver_init);
@@ -232,7 +274,7 @@ module_exit(pcd_driver_cleanup);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("bariscancoskun");
-MODULE_DESCRIPTION("A pseudo character driver");
+MODULE_DESCRIPTION("A pseudo character driver which handles n devices");
 
 
 
