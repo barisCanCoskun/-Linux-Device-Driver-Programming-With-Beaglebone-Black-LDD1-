@@ -10,10 +10,33 @@
 #undef pr_fmt
 #define pr_fmt(fmt) "%s:" fmt, __func__
 
-#define DEV_MEM_SIZE 512
+#define NO_OF_DEVICES 4
+
+#define MEM_SIZE_MAX_PCDEV1 1024
+#define MEM_SIZE_MAX_PCDEV2 512
+#define MEM_SIZE_MAX_PCDEV3 1024
+#define MEM_SIZE_MAX_PCDEV4 512
 
 //pseudo device's memory
-char device_buffer[DEV_MEM_SIZE];
+char device_buffer_pcdev1[MEM_SIZE_MAX_PCDEV1];
+char device_buffer_pcdev2[MEM_SIZE_MAX_PCDEV2];
+char device_buffer_pcdev3[MEM_SIZE_MAX_PCDEV3];
+char device_buffer_pcdev4[MEM_SIZE_MAX_PCDEV4];
+
+/* device private data stucture */
+struct pcdev_private_data{
+        char *buffer;
+	unsigned size;
+	const char *serial_number;
+	int perm;
+	struct cdev cdev;
+};
+
+/* driver private data stucture */
+struct pcdrv_private_data{
+	int total_devices;
+	struct pcdev_private_data pcdev_data[NO_OF_DEVICES];
+};
 
 //this holds the device number
 dev_t device_number;
