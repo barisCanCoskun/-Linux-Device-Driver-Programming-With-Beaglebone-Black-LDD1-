@@ -28,7 +28,7 @@ struct pcdev_private_data{
         char *buffer;
 	unsigned size;
 	const char *serial_number;
-	int perm;
+	int perm; /* permission */
 	//cdev variable: which represents char device
 	struct cdev cdev;
 };
@@ -211,7 +211,7 @@ static int __init pcd_driver_init(void){
 	if(IS_ERR(pcdrv_data.class_pcd)){
 		pr_err("Class creation failed\n");
 		ret = PTR_ERR(pcdrv_data.class_pcd);
-		goto cdev_delete;
+		goto unreg_chrdev;
 	}
 	/* PTR_ERR() converts pointer to error code(int) */
 	/* ERR_PTR() converts error code(int) to pointer */
@@ -227,7 +227,7 @@ static int __init pcd_driver_init(void){
 		ret = cdev_add(&pcdrv_data.pcdev_data[i].cdev, pcdrv_data.device_number + i, 1);
 		if(ret < 0){
 			pr_err("cdev add failed\n");
-			goto unreg_chrdev;
+			goto class_delete;
 		}
 
 		// device file creation
@@ -236,17 +236,18 @@ static int __init pcd_driver_init(void){
 		if(IS_ERR(pcdrv_data.device_pcd)){
 	                pr_err("Device creation failed\n");
 	                ret = PTR_ERR(pcdrv_data.device_pcd);
-	                goto class_delete;
+	                goto cdev_delete;
 	        }
 	}
 
 	pr_info("Module init was successful\n");
 
 	return 0;
+cdev_delete:
+	for(;i >= 0; --i)
+		cdev_del(&pcdrv_data.pcdev_data[i].cdev);
 class_delete:
 	class_destroy(pcdrv_data.class_pcd);
-cdev_delete:
-	cdev_del(&pcdrv_data.pcdev_data[i].cdev);
 unreg_chrdev:
 	unregister_chrdev_region(pcdrv_data.device_number, NO_OF_DEVICES);
 out:
@@ -256,18 +257,16 @@ out:
 }
 
 static void __exit pcd_driver_cleanup(void){
-#if 0
 	//chronologically reverse order
-	device_destroy(class_pcd, device_number);
+	for(int i = 0;i < NO_OF_DEVICES; ++i){
+		device_destroy(pcdrv_data.class_pcd, pcdrv_data.device_number + i);
+                cdev_del(&pcdrv_data.pcdev_data[i].cdev);
+	}
+        class_destroy(pcdrv_data.class_pcd);
 
-	class_destroy(class_pcd);
-
-	cdev_del(&pcd_cdev);
-
-	unregister_chrdev_region(device_number, 1);
+	unregister_chrdev_region(pcdrv_data.device_number, NO_OF_DEVICES);
 
 	pr_info("module unloaded\n");
-#endif
 }
 
 module_init(pcd_driver_init);
