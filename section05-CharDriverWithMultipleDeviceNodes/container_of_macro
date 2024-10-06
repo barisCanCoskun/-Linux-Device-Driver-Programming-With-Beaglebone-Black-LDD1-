@@ -1,0 +1,71 @@
+/******************************************************************************
+
+Welcome to GDB Online.
+GDB online is an online compiler and debugger tool for C, C++, Python, Java, PHP, Ruby, Perl,
+C#, OCaml, VB, Swift, Pascal, Fortran, Haskell, Objective-C, Assembly, HTML, CSS, JS, SQLite, Prolog.
+Code, Compile, Run and Debug online from anywhere in world.
+
+*******************************************************************************/
+#include <stdio.h>
+#include <stddef.h>
+
+struct some_data{
+    char a;
+    int b;
+    char c;
+    int d;
+};
+
+struct some_data data;
+
+//#define container_of(ptr, type, member) ((type *)((char *)ptr - (char *)&((type *)0)->member))
+#define container_of(ptr, type, member) ((type *)((long)ptr - offsetof(type, member)))
+
+void get_container(char *ptr){
+    // by using the 'ptr', get the address of 'data' (container)
+#if 0
+    //struct some_data temp;
+    
+    //int offset = (int)((char *)&temp.c - (char *)&temp.a);
+    //int offset = &temp.c - &temp.a;
+    
+    //printf("value of (struct some_data *)0 = %p\n", (struct some_data *)0);
+    
+    //int offset = &((struct some_data *)0)->c - &((struct some_data *)0)->a ;
+    //int offset = &((struct some_data *)0)->c - 0;
+    
+    long offset = (long)&((struct some_data *)0)->c;
+    
+    struct some_data *data1 = (struct some_data *)(ptr - offset);
+#endif
+
+}
+
+int main()
+{
+    data.a = 10;
+    data.b = 5;
+    data.c = 'a';
+    data.d = 100;
+    
+    //get_container(&data.c);
+    //get_container((char *)&data.b);
+    
+    //struct some_data *data1 = container_of(&data.c, struct some_data, c);
+    struct some_data *data1 = container_of(&data.b, struct some_data, b);
+    
+    printf("a = %d\n", data1->a);
+    printf("b = %d\n", data1->b);
+    printf("c = %c\n", data1->c);
+    printf("d = %d\n", data1->d);
+
+    return 0;
+}
+
+
+
+
+
+
+
+

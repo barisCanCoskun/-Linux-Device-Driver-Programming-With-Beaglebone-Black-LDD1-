@@ -1,6 +1,6 @@
-#include <sys/types.h> 
-#include <sys/stat.h> 
-#include <fcntl.h>
+#include<sys/types.h>
+#include<sys/stat.h>
+#include<fcntl.h>
 #include<unistd.h>
 #include<errno.h>
 #include<stdio.h>
@@ -13,13 +13,13 @@ char buffer[2048];
 int main(int argc, char *argv[])
 {
 	int fd;
-	
+
 	/*this variable holds remaining data bytes to be read */
 	int remaining = TRY_READ;
-	
+
 	/*Holds count of total data bytes read so far */
 	int total_read=0;
-	
+
 	int n =0,ret=0;
 
 	if(argc != 2 ){
@@ -45,9 +45,9 @@ int main(int argc, char *argv[])
 
 	printf("open was successful\n");
 
-#if  0 
+#if 1
 	/*activate this for lseek testing */
-	ret = lseek(fd,-10,SEEK_SET);
+	ret = lseek(fd, 10, SEEK_SET);
 	if(ret < 0){
 		perror("lseek");
 		close(fd);
@@ -55,7 +55,6 @@ int main(int argc, char *argv[])
 	}
 #endif
 	/*Lets attempt reading twice */
-	
 	while(n != 2 && remaining)
 	{
 		/*read data from 'fd' */

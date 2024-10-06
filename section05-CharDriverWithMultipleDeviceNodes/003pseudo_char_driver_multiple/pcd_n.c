@@ -295,8 +295,9 @@ out:
 }
 
 static void __exit pcd_driver_cleanup(void){
+	int i;
 	//chronologically reverse order
-	for(int i = 0;i < NO_OF_DEVICES; ++i){
+	for(i = 0;i < NO_OF_DEVICES; ++i){
 		device_destroy(pcdrv_data.class_pcd, pcdrv_data.device_number + i);
                 cdev_del(&pcdrv_data.pcdev_data[i].cdev);
 	}

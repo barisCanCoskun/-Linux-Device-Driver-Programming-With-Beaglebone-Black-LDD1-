@@ -38,7 +38,7 @@ __used __section("__versions") = {
 	{ 0x5b8239ca, "__x86_return_thunk" },
 	{ 0xbdfb6dbb, "__fentry__" },
 	{ 0x122c3a7e, "_printk" },
-	{ 0x43581fb4, "module_layout" },
+	{ 0x708cd699, "module_layout" },
 };
 
 MODULE_INFO(depends, "");
