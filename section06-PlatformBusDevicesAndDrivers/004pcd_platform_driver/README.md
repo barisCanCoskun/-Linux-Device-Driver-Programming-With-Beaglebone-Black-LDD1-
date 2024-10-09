@@ -7,5 +7,8 @@
 02 - kernel mem allocation in probe func for device private data    
 ![02-kernel_mem_allocation_in_probe_func](https://github.com/user-attachments/assets/4ea5e40b-83d5-43dd-8f0a-1bf1f170de1f)    
 
+03 - kmalloc func declaration
+![03-kmalloc_declaration](https://github.com/user-attachments/assets/fb4496b5-d6d2-4c5d-a387-0bc0bb2392ca)
+
 
 
