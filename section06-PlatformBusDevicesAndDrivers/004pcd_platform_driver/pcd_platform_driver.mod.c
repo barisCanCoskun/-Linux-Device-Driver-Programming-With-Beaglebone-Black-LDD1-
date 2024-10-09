@@ -47,6 +47,11 @@ __used __section("__versions") = {
 	{ 0xf2999cd4, "kmalloc_caches" },
 	{ 0x4524dc3a, "kmalloc_trace" },
 	{ 0xeb233a45, "__kmalloc" },
+	{ 0xf5f85346, "cdev_init" },
+	{ 0x63597d5f, "cdev_add" },
+	{ 0x714f9a77, "device_create" },
+	{ 0x37a0cba, "kfree" },
+	{ 0xcd643cea, "cdev_del" },
 	{ 0xbdfb6dbb, "__fentry__" },
 	{ 0x708cd699, "module_layout" },
 };
@@ -54,4 +59,4 @@ __used __section("__versions") = {
 MODULE_INFO(depends, "");
 
 
-MODULE_INFO(srcversion, "12D161FADA6352FE5FFDCEF");
+MODULE_INFO(srcversion, "7E6D2915ADE56C878127827");

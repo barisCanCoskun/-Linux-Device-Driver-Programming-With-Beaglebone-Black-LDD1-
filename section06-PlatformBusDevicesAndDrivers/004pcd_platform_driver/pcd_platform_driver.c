@@ -94,6 +94,8 @@ int pcd_platform_driver_probe(struct platform_device *pdev){
 	int ret;
 	struct pcdev_private_data * dev_data;
 
+	pr_info("A device is detected\n");
+
 	/* 1. Get the platform data */
 	struct pcdev_platform_data *pdata = pdev->dev.platform_data;
 	if(!pdata){
@@ -125,20 +127,41 @@ int pcd_platform_driver_probe(struct platform_device *pdev){
 	if(!dev_data->buffer){
 		pr_info("Cannot allocate memory for device buffer\n");
 		ret = -ENOMEM;
-		//goto ;
+		goto free_dev_data;
 	}
 
         /* 4. Get the device number */
+	dev_data->dev_num = pcdrv_data.device_num_base + pdev->id;
 
         /* 5. Do cdev init and cdev add */
+	cdev_init(&dev_data->cdev, &pcd_fops);
+
+	dev_data->cdev.owner = THIS_MODULE;
+	ret = cdev_add(&dev_data->cdev, dev_data->dev_num, 1);
+        if(ret < 0) {
+                pr_info("Failed to add cdev\n");
+                goto free_buffer;
+        }
 
         /* 6. Create device file for the detected platform device */
+	pcdrv_data.device_pcd = device_create(pcdrv_data.class_pcd, NULL, 
+	dev_data->dev_num, NULL, "pcdev-%d", pdev->id);
+	if(IS_ERR(pcdrv_data.device_pcd)){
+                pr_err("Device creation failed\n");
+                ret = PTR_ERR(pcdrv_data.device_pcd);
+                goto cdev_delete;
+       }
 
-        /* 7. Error handling */
-
-	pr_info("A device is detected\n");
+	pr_info("Device probed successfully\n");
 	return 0;
 
+        /* 7. Error handling */
+cdev_delete:
+	cdev_del(&dev_data->cdev);
+free_buffer:
+        kfree(dev_data->buffer);
+free_dev_data:
+	kfree(dev_data);
 out:
 	pr_info("Device probe failed\n");
 	return ret;
