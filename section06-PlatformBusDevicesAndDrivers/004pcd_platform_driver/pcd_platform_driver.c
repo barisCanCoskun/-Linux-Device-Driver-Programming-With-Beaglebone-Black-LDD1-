@@ -5,6 +5,8 @@
 #include<linux/kdev_t.h>
 #include<linux/uaccess.h>
 #include<linux/platform_device.h>
+#include<linux/slab.h>
+
 #include"platform.h"
 
 //pcd : pseudo char driver
@@ -89,8 +91,57 @@ int pcd_platform_driver_remove(struct platform_device *pdev){
 
 /* gets called when matched platform device is found*/
 int pcd_platform_driver_probe(struct platform_device *pdev){
+	int ret;
+	struct pcdev_private_data * dev_data;
+
+	/* 1. Get the platform data */
+	struct pcdev_platform_data *pdata = pdev->dev.platform_data;
+	if(!pdata){
+		pr_info("No platform data available\n");
+		ret = -EINVAL;
+		goto out;
+	}
+
+	/* 2. Dynamically allocate mem for the device private data */
+	dev_data = kzalloc(sizeof(struct pcdev_private_data), GFP_KERNEL);
+	if(!dev_data){
+		pr_info("Cannot allocate memory\n");
+		ret = -ENOMEM;
+		goto out;
+	}
+
+	dev_data->pdata = *pdata;
+	/* dev_data->pdata.size = pdata->size;
+	dev_data->pdata.perm = pdata->perm;
+	dev_data->pdata.serial_number = pdata->serial_number; */
+
+	pr_info("Device serial number: = &s\n", dev_data->pdata.serial_number);
+	pr_info("Device size: = &d\n", dev_data->pdata.size);
+	pr_info("Device permission: = &d\n", dev_data->pdata.perm);
+
+        /* 3. Dynamically allocate mem for the device buffer using size
+	info from the platform data */
+	dev_data->buffer = kzalloc(dev_data->pdata.size, GFP_KERNEL);
+	if(!dev_data->buffer){
+		pr_info("Cannot allocate memory for device buffer\n");
+		ret = -ENOMEM;
+		//goto ;
+	}
+
+        /* 4. Get the device number */
+
+        /* 5. Do cdev init and cdev add */
+
+        /* 6. Create device file for the detected platform device */
+
+        /* 7. Error handling */
+
 	pr_info("A device is detected\n");
 	return 0;
+
+out:
+	pr_info("Device probe failed\n");
+	return ret;
 }
 
 struct platform_driver pcd_platform_driver = {

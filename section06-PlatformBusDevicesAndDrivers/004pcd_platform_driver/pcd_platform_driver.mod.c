@@ -43,6 +43,10 @@ __used __section("__versions") = {
 	{ 0x6091b333, "unregister_chrdev_region" },
 	{ 0x100b66a4, "platform_driver_unregister" },
 	{ 0x704fc943, "class_destroy" },
+	{ 0x4c03a563, "random_kmalloc_seed" },
+	{ 0xf2999cd4, "kmalloc_caches" },
+	{ 0x4524dc3a, "kmalloc_trace" },
+	{ 0xeb233a45, "__kmalloc" },
 	{ 0xbdfb6dbb, "__fentry__" },
 	{ 0x708cd699, "module_layout" },
 };
@@ -50,4 +54,4 @@ __used __section("__versions") = {
 MODULE_INFO(depends, "");
 
 
-MODULE_INFO(srcversion, "F3D7644C678D5E1A9E68E74");
+MODULE_INFO(srcversion, "12D161FADA6352FE5FFDCEF");
