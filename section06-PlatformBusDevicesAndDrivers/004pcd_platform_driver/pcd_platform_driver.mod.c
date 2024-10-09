@@ -37,8 +37,12 @@ static const struct modversion_info ____versions[]
 __used __section("__versions") = {
 	{ 0x5b8239ca, "__x86_return_thunk" },
 	{ 0x122c3a7e, "_printk" },
+	{ 0xe3ec2f2b, "alloc_chrdev_region" },
+	{ 0x1dee04a0, "class_create" },
 	{ 0x5498709a, "__platform_driver_register" },
+	{ 0x6091b333, "unregister_chrdev_region" },
 	{ 0x100b66a4, "platform_driver_unregister" },
+	{ 0x704fc943, "class_destroy" },
 	{ 0xbdfb6dbb, "__fentry__" },
 	{ 0x708cd699, "module_layout" },
 };
@@ -46,4 +50,4 @@ __used __section("__versions") = {
 MODULE_INFO(depends, "");
 
 
-MODULE_INFO(srcversion, "702F3A73364EE1FCDBD122E");
+MODULE_INFO(srcversion, "F3D7644C678D5E1A9E68E74");

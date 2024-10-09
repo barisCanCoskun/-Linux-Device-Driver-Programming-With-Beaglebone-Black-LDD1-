@@ -12,6 +12,26 @@
 #undef pr_fmt
 #define pr_fmt(fmt) "%s:" fmt, __func__
 
+#define MAX_DEVICES 10
+
+/* device private data stucture */
+struct pcdev_private_data{
+        struct pcdev_platform_data pdata;
+        char *buffer;
+        dev_t dev_num;  /* holds device number */
+        struct cdev cdev; /* represents char device */
+};
+
+/* driver private data stucture */
+struct pcdrv_private_data{
+	int total_devices;
+	dev_t device_num_base;
+        struct class *class_pcd;
+        struct device *device_pcd;
+};
+
+struct pcdrv_private_data pcdrv_data;
+
 //defining file operation methods
 
 int check_permission(int dev_perm, int acc_mode){ /* acc_mode : access mode */
@@ -63,11 +83,13 @@ struct file_operations pcd_fops ={
 
 /* gets called when the device is removed from the system*/
 int pcd_platform_driver_remove(struct platform_device *pdev){
+	pr_info("A device is removed\n");
         return 0;
 }
 
 /* gets called when matched platform device is found*/
 int pcd_platform_driver_probe(struct platform_device *pdev){
+	pr_info("A device is detected\n");
 	return 0;
 }
 
@@ -80,13 +102,41 @@ struct platform_driver pcd_platform_driver = {
 };
 
 static int __init pcd_platform_driver_init(void){
+	int ret;
+
+	/* 1. Dynamically allocate a device number for MAX_DEVICES */
+	ret = alloc_chrdev_region(&pcdrv_data.device_num_base, 0, MAX_DEVICES, "pcdevs");
+	if(ret < 0){
+		pr_err("Alloc chrdev failed\n");
+		return ret;
+	}
+
+	/* 2. Create device class under /sys/class */
+	pcdrv_data.class_pcd = class_create("pcd_class");
+	if(IS_ERR(pcdrv_data.class_pcd)){
+		pr_err("Class creation failed\n");
+		ret = PTR_ERR(pcdrv_data.class_pcd);
+		unregister_chrdev_region(pcdrv_data.device_num_base, MAX_DEVICES);
+		return ret;
+	}
+
+	/* 3. Register a platform driver */
 	platform_driver_register(&pcd_platform_driver);
+
 	pr_info("pcd platform driver loaded\n");
 	return 0;
 }
 
 static void __exit pcd_platform_driver_cleanup(void){
+	/* 1. Unregister a platform driver */
 	platform_driver_unregister(&pcd_platform_driver);
+
+	/* 2. Destroy device class under /sys/class */
+	class_destroy(pcdrv_data.class_pcd);
+
+	/* 3. Free allocated mem for a device number for MAX_DEVICES */
+	unregister_chrdev_region(pcdrv_data.device_num_base, MAX_DEVICES);
+
 	pr_info("pcd platform driver unloaded\n");
 }
 

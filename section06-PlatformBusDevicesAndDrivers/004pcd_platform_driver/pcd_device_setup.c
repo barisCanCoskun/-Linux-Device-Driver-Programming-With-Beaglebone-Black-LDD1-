@@ -42,7 +42,7 @@ static int __init pcdev_platform_init(void){
 	platform_device_register(&platform_pcdev_1);
 	platform_device_register(&platform_pcdev_2);
 
-	pr_info("Device setup module inserted\n");
+	pr_info("Device setup module loaded\n");
 
 	return 0;
 }
@@ -52,7 +52,7 @@ static void __exit pcdev_platform_exit(void){
         platform_device_unregister(&platform_pcdev_1);
         platform_device_unregister(&platform_pcdev_2);
 
-	pr_info("Device setup module removed\n");
+	pr_info("Device setup module unloaded\n");
 
 }
 
